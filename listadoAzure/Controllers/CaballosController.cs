@@ -23,11 +23,78 @@ namespace listadoAzure.Controllers
             }
             return View(listadoCompleto);
         }
+        public IActionResult Details(int id)
+        {
+            var caballo = listadoDAL.buscarCaballoPorId(id);
 
-        public ActionResult Edit(int id)
+            return View(caballo);
+        }
+        public ActionResult Create()
         {
 
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create( string Nombre, int idRaza)
+        {
+            try
+            {
+                clsCaballo caballoNuevo = new clsCaballo(Nombre, idRaza);
+                crudListado.crearCaballo(caballoNuevo);
+                return RedirectToAction(nameof(Create));
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        public ActionResult Edit(int Id)
+        {
+            var caballo = listadoDAL.buscarCaballoPorId(Id);
+            return View(caballo);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(clsCaballo caballo)
+        {
+            try
+            {
+                crudListado.editarCaballo(caballo);
+                return RedirectToAction(nameof(Edit));
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+
+        public ActionResult Delete(int id)
+        {
+            clsCaballo caballoSeleccionado = listadoDAL.buscarCaballoPorId(id);
+            return View(caballoSeleccionado);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Delete(int id, IFormCollection collection)
+        {
+            try
+            {
+                int nCaballosBorrados = crudListado.deleteCaballoDAL(id);
+                //ViewData["Dato"] = nPersonasBorradas;
+                clsCaballo caballoSeleccionado = listadoDAL.buscarCaballoPorId(id);
+                return RedirectToAction("Index");
+
+            }
+            catch
+            {
+                return View();
+            }
         }
 
     }

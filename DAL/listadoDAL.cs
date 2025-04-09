@@ -61,6 +61,10 @@ namespace DAL
 
             return listadoCaballos;
         }
+        /// <summary>
+        /// obtiene las razas de la BDD
+        /// </summary>
+        /// <returns></returns>
         public static List<clsRaza> ObtenerRazas()
         {
             SqlConnection miConexion;
@@ -96,45 +100,43 @@ namespace DAL
 
             return listadoRazas;
         }
-
-        public static clsCaballo BuscarCaballoPorRaza(int id)
+        /// <summary>
+        /// Busca un caballo por su ID de la BDD
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static clsCaballo buscarCaballoPorId(int idCaballo)
         {
-            string connectionString = "server=davidser.database.windows.net;database=DavidDB;uid=usuario;pwd=LaCampana123;trustServerCertificate=true;";
-            clsCaballo oCaballo=null;
+            clsCaballo caballo = null;
+            SqlConnection miConexion = new SqlConnection("server=davidser.database.windows.net;database=DavidDB;uid=usuario;pwd=LaCampana123;trustServerCertificate=true;");
+            SqlCommand miComando = new SqlCommand("SELECT * FROM Caballos WHERE IDCaballo = @idCaballo", miConexion);
+            miComando.Parameters.AddWithValue("@idCaballo", idCaballo);
 
-            using (SqlConnection miConexion = new SqlConnection(connectionString))
+            try
             {
-                string query = "SELECT * FROM Caballos WHERE IDRaza = @id";
-
-                using (SqlCommand miComando = new SqlCommand(query, miConexion))
+                miConexion.Open();
+                SqlDataReader lector = miComando.ExecuteReader();
+                if (lector.Read())
                 {
-                    miComando.Parameters.Add("@id", System.Data.SqlDbType.Int).Value = id;
-
-                    try
+                    caballo = new clsCaballo
                     {
-                        miConexion.Open();
-
-                        using (SqlDataReader miLector = miComando.ExecuteReader())
-                        {
-                            if (miLector.Read())
-                            {
-                                {
-                                    int idCaballo = (int)miLector["IDCaballo"];
-                                    oCaballo = new clsCaballo(idCaballo);
-                                    oCaballo.Nombre = (string)miLector["Nombre"];
-                                    oCaballo.IdRaza = (int)miLector["IDRaza"];
-                                };
-                            }
-                        }
-                    }
-                    catch (SqlException ex)
-                    {
-                        throw ex;
-                    }
+                        IdCaballo = (int)lector["IDCaballo"],
+                        Nombre = lector["Nombre"].ToString(),
+                        IdRaza = (int)lector["IDRaza"]
+                    };
                 }
+                lector.Close();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                miConexion.Close();
             }
 
-            return oCaballo;
+            return caballo;
         }
 
     }

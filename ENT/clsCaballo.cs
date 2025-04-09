@@ -25,5 +25,11 @@ namespace ENT
         }
 
         public clsCaballo() { }
+
+        public clsCaballo(string nombre, int idRaza)
+        {
+            Nombre = nombre;
+            IdRaza = idRaza;
+        }
     }
 }
