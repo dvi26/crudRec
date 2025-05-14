@@ -4,6 +4,7 @@ using ENT;
 using listadoAzure.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Services;
 
 namespace listadoAzure.Controllers
@@ -12,8 +13,16 @@ namespace listadoAzure.Controllers
     {
         public ActionResult Index()
         {
+            List<clsRaza> listadoRazas = new List<clsRaza>();
+            try
+            {
+                listadoRazas = listadoDAL.ObtenerRazas();
+            }
+            catch (SqlException e)
+            {
+                return View("Error");
+            }
             
-            List<clsRaza> listadoRazas = listadoDAL.ObtenerRazas();
             List<clsCaballoConRaza> listadoCompleto= new List<clsCaballoConRaza>(); ; 
             foreach (clsCaballo caballo in listadoDAL.ObtenerCaballos())
             {
@@ -37,11 +46,11 @@ namespace listadoAzure.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create( string Nombre, int idRaza)
+        public ActionResult Create( clsCaballo caballoNuevo)
         {
             try
             {
-                clsCaballo caballoNuevo = new clsCaballo(Nombre, idRaza);
+                //clsCaballo caballoNuevo = new clsCaballo(Nombre, idRaza);
                 crudListado.crearCaballo(caballoNuevo);
                 return RedirectToAction(nameof(Create));
             }
@@ -68,7 +77,7 @@ namespace listadoAzure.Controllers
             }
             catch
             {
-                return View();
+                return View("Error");
             }
         }
 
